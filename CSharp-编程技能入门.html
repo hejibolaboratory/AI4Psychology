@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# 编程技能入门</title>
+<style>
+:root{
+  --acid-lime:#e4f222;
+  --pulse-green:#27a644;
+  --coral-red:#eb5757;
+  --signal-teal:#02b8cc;
+  --iris-violet:#6366f1;
+
+  --void:#08090a;
+  --carbon:#0f1011;
+  --obsidian:#161718;
+  --graphite:#23252a;
+  --smoke:#383b3f;
+  --ash:#62666d;
+  --fog:#8a8f98;
+  --mist:#d0d6e0;
+  --bone:#e5e5e6;
+  --paper:#ffffff;
+
+  --font-display:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#0a0a0c;overflow:hidden;font-family:var(--font-body);}
+.canvas{
+  position:fixed;top:50%;left:50%;
+  width:1280px;height:720px;
+  background:var(--void);
+  transform:translate(-50%,-50%) scale(1);
+  transform-origin:center center;
+  box-shadow:0 10px 60px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.4);
+  overflow:hidden;
+  color:var(--mist);
+}
+.slide{
+  position:absolute;inset:0;
+  display:grid;
+  padding:56px 72px;
+  opacity:0;visibility:hidden;
+  transition:opacity .5s cubic-bezier(.2,.7,.2,1),visibility .5s;
+  background:var(--void);
+  color:var(--mist);
+}
+.slide.active{opacity:1;visibility:visible;}
+
+/* ===== Typography ===== */
+.kicker{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--acid-lime);}
+.h-1{font-size:48px;font-weight:590;line-height:1.04;letter-spacing:-.022em;color:var(--bone);}
+.h-2{font-size:32px;font-weight:560;line-height:1.15;letter-spacing:-.015em;color:var(--bone);}
+.h-3{font-size:22px;font-weight:560;line-height:1.25;color:var(--bone);}
+.lead{font-size:18px;line-height:1.6;color:var(--fog);max-width:62ch;}
+.body{font-size:16px;line-height:1.5;color:var(--mist);}
+.mono{font-family:var(--font-mono);font-size:13px;color:var(--fog);}
+
+/* ===== Chrome ===== */
+.chrome-top{position:absolute;top:26px;left:72px;right:72px;display:flex;justify-content:space-between;align-items:center;z-index:70;font-size:12px;color:var(--ash);letter-spacing:.03em;}
+.chrome-top b{color:var(--mist);font-weight:600;}
+.chrome-bottom{position:absolute;bottom:26px;left:72px;right:72px;display:flex;justify-content:space-between;align-items:center;z-index:70;font-size:12px;color:var(--ash);letter-spacing:.03em;}
+.chrome-bottom b{color:var(--mist);font-weight:600;}
+.nav-dots{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:80;}
+.nav-dots .dot{width:6px;height:6px;border-radius:50%;background:var(--smoke);cursor:pointer;transition:all .3s;}
+.nav-dots .dot.active{background:var(--acid-lime);width:18px;border-radius:3px;}
+
+/* ===== Stagger animation ===== */
+.slide .stagger{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s cubic-bezier(.2,.7,.2,1);}
+.slide.active .stagger{opacity:1;transform:none;}
+.d1{transition-delay:.05s}.d2{transition-delay:.11s}.d3{transition-delay:.17s}.d4{transition-delay:.23s}.d5{transition-delay:.29s}.d6{transition-delay:.35s}
+
+/* ===== Cover T01 ===== */
+.s-cover{grid-template-rows:1fr auto;}
+.cover-main{align-self:center;}
+.cover-chinese{font-size:96px;line-height:.96;font-weight:200;letter-spacing:-.02em;color:var(--bone);display:flex;flex-direction:column;}
+.cover-chinese span:last-child{color:var(--acid-lime);}
+.cover-sub{margin-top:24px;}
+.cover-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;padding-top:30px;border-top:.5px solid var(--graphite);}
+.cover-meta div{font-size:11px;color:var(--ash);text-transform:uppercase;letter-spacing:.05em;}
+.cover-meta strong{display:block;font-size:18px;margin-top:8px;color:var(--mist);font-weight:600;}
+
+/* ===== Agenda T02 ===== */
+.s-agenda{grid-template-columns:330px 1fr;gap:72px;align-items:center;}
+.agenda-list{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.agenda-item{display:grid;grid-template-columns:60px 1fr auto;padding:18px 0;gap:20px;border-bottom:.5px solid var(--graphite);align-items:center;}
+.agenda-item .idx{font-size:22px;font-weight:200;color:var(--acid-lime);}
+.agenda-item .name{font-size:26px;font-weight:500;color:var(--bone);}
+.agenda-item .en{font-size:12px;color:var(--ash);}
+
+/* ===== Brand T03 ===== */
+.s-brand{grid-template-columns:1fr 1fr;gap:69px;align-items:center;}
+.brand-left h1{margin-top:20px;}
+.brand-left .lead{margin-top:22px;}
+.brand-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-top:24px;margin-top:40px;border-top:.5px solid var(--graphite);}
+.brand-stats .k{font-size:46px;font-weight:200;color:var(--bone);}
+.brand-stats .k b{color:var(--acid-lime);font-weight:200;}
+.brand-stats .lbl{font-size:12px;margin-top:8px;color:var(--ash);}
+.brand-cards{display:flex;flex-direction:column;gap:14px;max-height:582px;overflow:hidden;align-content:center;}
+.brand-card{display:grid;grid-template-columns:46px 1fr auto;gap:22px;padding:20px 24px;background:var(--carbon);border:.5px solid var(--graphite);border-radius:12px;align-items:start;}
+.brand-card .num{font-size:28px;font-weight:200;color:var(--acid-lime);}
+.brand-card .tag{font-size:11px;color:var(--ash);}
+.brand-card .title{font-size:19px;font-weight:600;margin-top:4px;color:var(--bone);}
+.brand-card .desc{font-size:13px;margin-top:6px;line-height:1.5;color:var(--fog);}
+.brand-card .badge{font-size:11px;padding:6px 12px;border:0.5px solid var(--smoke);border-radius:9999px;color:var(--fog);}
+
+/* ===== Grid Lines T04 ===== */
+.s-lines{display:flex!important;flex-direction:column;justify-content:center;gap:32px;}
+.lines-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:32px;}
+.lines-head .h-1{font-size:40px;}
+.lines-head .lead{font-size:14px;}
+.lines-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;overflow:hidden;flex-shrink:0;background:var(--graphite);border:.5px solid var(--graphite);border-radius:12px;}
+.line-cell{padding:24px 20px 20px;display:flex;flex-direction:column;gap:8px;background:var(--carbon);}
+.line-cell .num{font-size:28px;font-weight:200;color:var(--acid-lime);}
+.line-cell .name{font-size:18px;font-weight:600;color:var(--bone);}
+.line-cell .en{font-size:10px;color:var(--ash);letter-spacing:.03em;text-transform:uppercase;}
+.line-cell .desc{font-size:12px;margin-top:12px;line-height:1.5;color:var(--fog);}
+.line-cell .accent{font-size:10px;color:var(--signal-teal);margin-top:auto;}
+
+/* ===== Team Cards T05 ===== */
+.s-team{grid-template-columns:40% 1fr;gap:77px;align-items:center;}
+.team-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-height:582px;overflow:hidden;align-content:center;}
+.team-card{display:flex;flex-direction:column;gap:12px;padding:24px;min-height:168px;background:var(--carbon);border:.5px solid var(--graphite);border-radius:12px;}
+.team-card .idx{font-size:12px;color:var(--acid-lime);}
+.team-card .title{font-size:19px;font-weight:600;color:var(--bone);}
+.team-card .en-sub{font-size:11px;margin-top:4px;color:var(--ash);}
+.team-card .desc{font-size:13px;line-height:1.55;margin-top:auto;color:var(--fog);}
+
+/* ===== Refine List T06 ===== */
+.s-refine{grid-template-columns:34% 1fr;gap:72px;align-items:center;}
+.refine-list{align-content:center;max-height:582px;overflow:hidden;}
+.refine-item{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:18px 0;align-items:start;border-bottom:.5px solid var(--graphite);}
+.refine-item .idx{font-size:13px;padding-top:5px;color:var(--acid-lime);font-weight:600;}
+.refine-item .idx b{font-weight:600;}
+.refine-item .h{font-size:22px;font-weight:600;color:var(--bone);}
+.refine-item .d{font-size:13.5px;line-height:1.55;margin-top:6px;max-width:68ch;color:var(--fog);}
+
+/* ===== Think T07 ===== */
+.s-think{grid-template-columns:1fr;align-items:center;}
+.think-wrap{max-width:1100px;max-height:582px;overflow:hidden;}
+.think-kicker{font-size:13px;color:var(--acid-lime);letter-spacing:.06em;text-transform:uppercase;}
+.think-q{margin-top:22px;font-size:72px;font-weight:200;line-height:1.04;letter-spacing:-.02em;color:var(--bone);}
+.think-q em{font-style:normal;color:var(--acid-lime);}
+.think-sub{margin-top:26px;font-size:15px;line-height:1.65;max-width:72ch;color:var(--fog);}
+.think-note{margin-top:20px;padding:16px 20px;font-size:15px;border:.5px solid var(--graphite);border-radius:10px;background:var(--carbon);display:flex;width:fit-content;gap:12px;}
+.think-note b{color:var(--acid-lime);font-weight:600;}
+.think-note span{color:var(--mist);}
+
+/* ===== Close T08 ===== */
+.s-close{grid-template-columns:1fr 1fr;padding:0;}
+.close-left{display:flex;flex-direction:column;justify-content:space-between;padding:28px 46px 28px 77px;background:var(--carbon);border-right:.5px solid var(--graphite);}
+.close-right{display:flex;flex-direction:column;justify-content:space-between;padding:28px 77px 28px 46px;background:var(--void);}
+.chrome-min{display:flex;justify-content:space-between;font-size:12px;color:var(--ash);}
+.manifesto .meta{font-size:12px;color:var(--acid-lime);letter-spacing:.05em;text-transform:uppercase;}
+.manifesto h2{font-size:76px;font-weight:200;line-height:.96;color:var(--bone);margin-top:12px;}
+.manifesto .sub{font-size:15px;margin-top:14px;color:var(--fog);}
+.sig{display:flex;justify-content:space-between;font-size:12px;color:var(--ash);}
+.takeaways{display:flex;flex-direction:column;}
+.take-item{display:grid;grid-template-columns:auto 1fr;gap:24px;padding:20px 0;border-bottom:.5px solid var(--graphite);}
+.take-item .num{font-size:52px;font-weight:200;color:var(--acid-lime);}
+.take-item h3{font-size:22px;margin-bottom:8px;color:var(--bone);font-weight:600;}
+.take-item p{font-size:15px;color:var(--fog);line-height:1.5;}
+.foot{font-size:12px;color:var(--acid-lime);letter-spacing:.03em;}
+
+/* ===== Dense Table T18 ===== */
+.s-dense-table{grid-template-rows:auto auto;align-content:center;gap:20px;}
+.dense-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:32px;}
+.dense-head .h-1{font-size:42px;line-height:1.1;margin-top:12px;}
+.dense-head .lead{max-width:48ch;font-size:15px;align-self:end;}
+.dense-table{display:flex;flex-direction:column;gap:0;border:.5px solid var(--graphite);border-radius:12px;overflow:hidden;}
+.dt-row{display:grid;grid-template-columns:180px repeat(3,1fr);padding:12px 16px;border-bottom:.5px solid var(--graphite);align-items:center;font-size:13px;color:var(--mist);}
+.dt-row:last-child{border-bottom:none;}
+.dt-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:var(--carbon);color:var(--ash);}
+.dt-label{font-weight:600;font-size:13px;color:var(--bone);}
+.dt-row .mono{color:var(--signal-teal);}
+
+/* ===== Metrics T19 ===== */
+.s-metrics{grid-template-rows:auto auto;align-content:center;gap:20px;}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--graphite);border:.5px solid var(--graphite);border-radius:12px;overflow:hidden;}
+.metric-cell{padding:28px 24px;background:var(--carbon);display:flex;flex-direction:column;gap:6px;}
+.metric-value{font-size:36px;font-weight:200;letter-spacing:-.02em;color:var(--bone);}
+.metric-value b{color:var(--acid-lime);font-weight:200;}
+.metric-label{font-size:12px;color:var(--fog);}
+.metric-delta{font-size:11px;font-weight:600;}
+.metric-delta.positive{color:var(--pulse-green);}
+.metric-delta.negative{color:var(--coral-red);}
+
+/* ===== Dense List T20 ===== */
+.s-dense-list{grid-template-rows:auto auto;align-content:center;gap:20px;}
+.dense-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;max-height:582px;overflow:hidden;}
+.dl-item{display:grid;grid-template-columns:36px 1fr;gap:12px;padding:14px 0;border-bottom:.5px solid var(--graphite);align-items:start;}
+.dl-idx{font-size:11px;font-weight:600;color:var(--acid-lime);padding-top:3px;}
+.dl-title{font-size:14px;font-weight:600;color:var(--bone);}
+.dl-desc{font-size:12px;margin-top:2px;color:var(--fog);line-height:1.5;}
+
+/* ===== Comparison T21 ===== */
+.s-comparison{grid-template-rows:auto auto;align-content:center;gap:20px;}
+.compare-table{display:flex;flex-direction:column;border:.5px solid var(--graphite);border-radius:12px;overflow:hidden;}
+.cmp-row{display:grid;grid-template-columns:160px repeat(3,1fr);padding:11px 16px;border-bottom:.5px solid var(--graphite);font-size:13px;align-items:center;color:var(--mist);}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-header{font-size:12px;font-weight:600;text-transform:uppercase;background:var(--carbon);color:var(--ash);}
+.cmp-dim{font-weight:500;color:var(--fog);}
+.cmp-highlight{background:rgba(228,242,34,.04);font-weight:600;color:var(--bone);}
+.cmp-row .mono{color:var(--signal-teal);font-size:12px;}
+
+/* ===== Code Slide (custom) ===== */
+.s-code{grid-template-rows:auto 1fr auto;gap:20px;padding-top:80px;padding-bottom:86px;}
+.code-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:32px;}
+.code-head .h-1{font-size:40px;line-height:1.1;margin-top:10px;}
+.code-head .lead{font-size:14px;align-self:end;max-width:50ch;}
+.code-panel{display:flex;flex-direction:column;border:.5px solid var(--graphite);border-radius:12px;overflow:hidden;background:var(--carbon);min-height:0;}
+.code-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:.5px solid var(--graphite);background:var(--obsidian);font-size:12px;color:var(--ash);font-family:var(--font-mono);}
+.code-bar .dot{width:10px;height:10px;border-radius:50%;}
+.code-bar .dot.r{background:var(--coral-red);}.code-bar .dot.y{background:var(--acid-lime);}.code-bar .dot.g{background:var(--pulse-green);}
+.code-bar .fname{margin-left:8px;color:var(--fog);}
+.code-body{flex:1;padding:20px 26px;font-family:var(--font-mono);font-size:16.5px;line-height:1.62;color:var(--mist);overflow:hidden;white-space:pre;tab-size:4;}
+.kw{color:var(--iris-violet);}.str{color:var(--acid-lime);}.ty{color:var(--signal-teal);}.cm{color:var(--ash);font-style:italic;}.num{color:var(--mist);}.fn{color:var(--bone);}
+.code-tip{display:flex;gap:12px;align-items:flex-start;padding:13px 18px;border:.5px solid var(--graphite);border-radius:10px;background:var(--carbon);font-size:14px;color:var(--fog);line-height:1.55;}
+.code-tip b{color:var(--acid-lime);font-weight:600;flex-shrink:0;}
+.code-tip .mono{color:var(--signal-teal);}
+
+/* full-bleed close chrome suppression */
+.deck:has(.s-close.active) .chrome-top,
+.deck:has(.s-close.active) .chrome-bottom{opacity:0;visibility:hidden;}
+
+/* ===== OS Setup (custom) ===== */
+.s-os{grid-template-rows:auto auto;align-content:center;gap:26px;}
+.s-os .h-1{margin-top:10px;}
+.s-os .lead{margin-top:14px;}
+.os-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.os-card{display:flex;flex-direction:column;padding:26px 24px;background:var(--carbon);border:.5px solid var(--graphite);border-radius:12px;}
+.os-top{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.os-name{font-size:22px;font-weight:600;color:var(--bone);}
+.os-badge{font-size:10px;padding:5px 12px;border:.5px solid var(--smoke);border-radius:9999px;color:var(--fog);letter-spacing:.02em;white-space:nowrap;}
+.os-cmd{margin-top:18px;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--signal-teal);background:var(--obsidian);border:.5px solid var(--graphite);border-radius:8px;padding:14px 16px;white-space:pre-wrap;word-break:break-all;}
+.os-editor{margin-top:16px;font-size:13px;line-height:1.6;color:var(--mist);}
+.os-editor b{color:var(--acid-lime);font-weight:600;}
+.os-desc{margin-top:auto;padding-top:16px;font-size:12.5px;line-height:1.55;color:var(--fog);}
+
+/* ===== Project Structure (custom) ===== */
+.s-struct{grid-template-rows:auto auto;align-content:center;gap:26px;}
+.s-struct .h-1{margin-top:10px;}
+.s-struct .lead{margin-top:14px;}
+.struct-body{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;}
+.struct-list{display:flex;flex-direction:column;max-height:582px;overflow:hidden;}
+.struct-item{display:grid;grid-template-columns:170px 1fr;gap:22px;padding:17px 0;border-bottom:.5px solid var(--graphite);align-items:start;}
+.struct-item:last-child{border-bottom:none;}
+.struct-item .k{font-family:var(--font-mono);font-size:13.5px;color:var(--signal-teal);font-weight:600;padding-top:2px;}
+.struct-item .v{font-size:14px;line-height:1.55;color:var(--fog);}
+.struct-item .v b{color:var(--bone);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="canvas" id="canvas">
+    <div class="chrome-top">
+      <span><b>C# 编程技能入门</b> · Programming Fundamentals</span>
+      <span>2026 · 4 学时</span>
+    </div>
+    <div class="chrome-bottom">
+      <span><b>入门课程</b> · 变量 · 字符串 · 循环 · 条件 · 函数 · 类 · 文件</span>
+      <span><b id="pageCur">01</b> / <span id="pageTot">84</span></span>
+    </div>
+
+    <!-- ===================== 1 · 封面 ===================== -->
+    <section class="slide s-cover active">
+      <div class="cover-main stagger">
+        <span class="kicker">C# Programming · 入门课程</span>
+        <div class="cover-chinese">
+          <span>C# 编程技能</span>
+          <span>入门</span>
+        </div>
+        <p class="cover-sub lead">掌握变量、字符串、条件、循环、函数、类与文本读写，4 学时带你打下扎实的 C# 编程基础。</p>
+      </div>
+      <div class="cover-meta stagger d3">
+        <div>课程 <strong>基础入门</strong></div>
+        <div>学时 <strong>4 学时</strong></div>
+        <div>对象 <strong>零基础学员</strong></div>
+        <div>平台 <strong>.NET / C#</strong></div>
+      </div>
+    </section>
+
+    <!-- ===================== 2 · 目录 ===================== -->
+    <section class="slide s-agenda">
+      <div class="stagger">
+        <span class="kicker">Contents · 目录</span>
+        <h2 class="h-1">课程大纲</h2>
+        <p class="lead">围绕七大核心主题，分四学时循序渐进，从语法基础走向文件读写实战。</p>
+      </div>
+      <div class="agenda-list stagger d2">
+        <div class="agenda-item"><span class="idx">01</span><span class="name">课程导览</span><span class="en">Overview</span></div>
+        <div class="agenda-item"><span class="idx">02</span><span class="name">第一学时 · 变量与数据类型</span><span class="en">Variables &amp; Types</span></div>
+        <div class="agenda-item"><span class="idx">03</span><span class="name">第二学时 · 字符串·条件·循环</span><span class="en">Strings &amp; Control Flow</span></div>
+        <div class="agenda-item"><span class="idx">04</span><span class="name">第三学时 · 函数</span><span class="en">Methods</span></div>
+        <div class="agenda-item"><span class="idx">05</span><span class="name">第四学时 · 类与文本读写</span><span class="en">Classes &amp; File I/O</span></div>
+        <div class="agenda-item"><span class="idx">06</span><span class="name">综合实战与总结</span><span class="en">Practice &amp; Recap</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 2A · 环境配置 ===================== -->
+    <section class="slide s-os">
+      <div class="stagger">
+        <span class="kicker">课前准备 · Environment</span>
+        <h1 class="h-1">开发环境配置 · 三平台</h1>
+        <p class="lead">装好 .NET SDK 与一个编辑器，就能在 Windows、macOS、Linux 上编写并运行 C# 程序。</p>
+      </div>
+      <div class="os-grid stagger d2">
+        <div class="os-card">
+          <div class="os-top"><span class="os-name">Windows</span><span class="os-badge">Visual Studio</span></div>
+          <div class="os-cmd">winget install Microsoft.DotNet.SDK.10</div>
+          <div class="os-editor">编辑器：<b>Visual Studio 2022 Community</b>（勾选「.NET 桌面开发」工作负载），或 VS Code + C# Dev Kit。</div>
+          <div class="os-desc">用 winget 一行安装，或到 dotnet.microsoft.com 下载安装包；Visual Studio 提供最完整的开箱体验。</div>
+        </div>
+        <div class="os-card">
+          <div class="os-top"><span class="os-name">macOS</span><span class="os-badge">VS Code / Rider</span></div>
+          <div class="os-cmd">brew install --cask dotnet-sdk</div>
+          <div class="os-editor">编辑器：<b>VS Code + C# Dev Kit</b>，或 JetBrains <b>Rider</b>。</div>
+          <div class="os-desc">用 Homebrew 安装，或下载官方安装包；Apple Silicon 与 Intel 均有对应版本。</div>
+        </div>
+        <div class="os-card">
+          <div class="os-top"><span class="os-name">Linux</span><span class="os-badge">Ubuntu / 发行版</span></div>
+          <div class="os-cmd">sudo apt install dotnet-sdk-10.0</div>
+          <div class="os-editor">编辑器：<b>VS Code + C# Dev Kit</b>。</div>
+          <div class="os-desc">先添加微软软件源，再用包管理器安装；官方文档提供各发行版的安装脚本。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 2B · 项目结构 ===================== -->
+    <section class="slide s-struct">
+      <div class="stagger">
+        <span class="kicker">课前准备 · Structure</span>
+        <h1 class="h-1">最简单的 C# 项目结构</h1>
+        <p class="lead">用 <span class="mono">dotnet new console</span> 创建项目，得到的就是下面这个文件/文件夹骨架。</p>
+      </div>
+      <div class="struct-body stagger d2">
+        <div class="code-panel">
+          <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">HelloWorld/ — 目录树</span></div>
+          <pre class="code-body"><span class="cm">HelloWorld/</span>                   <span class="cm">项目根目录</span>
+├── <span class="ty">HelloWorld.csproj</span>        <span class="cm">项目文件（SDK、依赖）</span>
+├── <span class="fn">Program.cs</span>               <span class="cm">入口代码（顶层语句）</span>
+├── <span class="kw">obj/</span>                      <span class="cm">编译中间产物（自动生成）</span>
+└── <span class="kw">bin/</span>                      <span class="cm">编译输出（可执行 / DLL）</span></pre>
+        </div>
+        <div class="struct-list">
+          <div class="struct-item"><span class="k">HelloWorld.csproj</span><span class="v"><b>项目文件</b>：声明 SDK、目标框架与依赖，是整个项目的"身份证"。</span></div>
+          <div class="struct-item"><span class="k">Program.cs</span><span class="v"><b>入口代码</b>：程序从这里开始执行（顶层语句或 Main 方法）。</span></div>
+          <div class="struct-item"><span class="k">obj/</span><span class="v"><b>中间产物</b>：编译过程的临时文件，自动生成，无需关心。</span></div>
+          <div class="struct-item"><span class="k">bin/</span><span class="v"><b>编译输出</b>：生成的 DLL / 可执行文件，<span class="mono">dotnet run</span> 即运行这里的内容。</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 3 · 第一学时章节页 ===================== -->
+    <section class="slide s-think">
+      <div class="think-wrap stagger">
+        <div class="think-kicker">Lesson 01 · 第一学时</div>
+        <div class="think-q">走进 C#<br><em>变量与数据类型</em></div>
+        <p class="think-sub">认识 C# 语言与 .NET 平台，掌握变量、常量与数据类型，完成类型转换，迈出编程第一步。</p>
+        <div class="think-note"><b>目标</b><span>能独立声明变量、理解数据类型并完成基本类型转换</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 4 · 什么是 C# ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">01 / C# 入门</span>
+        <h1 class="h-1">什么是 C#？</h1>
+        <p class="lead">C#（读作 C Sharp）是微软开发的现代、面向对象、类型安全的编程语言，语法简洁优雅，广泛应用于各类应用开发。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>2000</b></div><div class="lbl">首次发布</div></div>
+          <div><div class="k"><b>12</b>+</div><div class="lbl">主要版本迭代</div></div>
+          <div><div class="k"><b>跨平台</b></div><div class="lbl">Windows / Mac / Linux</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Modern</div><div class="title">现代面向对象</div><div class="desc">语法简洁、类型安全，支持泛型、LINQ 等高级特性。</div></div><div class="badge">语言</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">General</div><div class="title">多领域通用</div><div class="desc">Web、桌面、游戏(Unity)、移动、云计算皆可胜任。</div></div><div class="badge">应用</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Compiled</div><div class="title">编译型强类型</div><div class="desc">编译为中间语言 IL，运行于 .NET 运行时，性能出色。</div></div><div class="badge">运行时</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 5 · .NET 平台 ===================== -->
+    <section class="slide s-lines">
+      <div class="lines-head stagger">
+        <div>
+          <span class="kicker">01 / C# 入门</span>
+          <h1 class="h-1">.NET 平台组成</h1>
+        </div>
+        <p class="lead">C# 代码依托 .NET 平台运行，四者协作构成完整开发与运行环境。</p>
+      </div>
+      <div class="lines-grid stagger d2">
+        <div class="line-cell"><span class="num">01</span><div class="name">C# 语言</div><div class="en">Language</div><div class="desc">开发者书写的高级语言，语法现代、类型安全。</div><div class="accent">源代码</div></div>
+        <div class="line-cell"><span class="num">02</span><div class="name">.NET SDK</div><div class="en">SDK</div><div class="desc">编译器与命令行工具，负责构建与运行项目。</div><div class="accent">dotnet CLI</div></div>
+        <div class="line-cell"><span class="num">03</span><div class="name">CLR 运行时</div><div class="en">Runtime</div><div class="desc">公共语言运行时，执行 IL 并管理内存与异常。</div><div class="accent">执行引擎</div></div>
+        <div class="line-cell"><span class="num">04</span><div class="name">基础类库 BCL</div><div class="en">Libraries</div><div class="desc">提供字符串、集合、文件等海量现成 API。</div><div class="accent">类库</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 6 · 开发环境 ===================== -->
+    <section class="slide s-refine">
+      <div class="stagger">
+        <span class="kicker">01 / C# 入门</span>
+        <h1 class="h-1">开发环境准备</h1>
+        <p class="lead">只需三步，即可拥有一个可运行的 C# 开发环境。</p>
+      </div>
+      <div class="refine-list stagger d2">
+        <div class="refine-item"><span class="idx"><b>01</b> · Install</span><div><div class="h">安装 .NET SDK</div><div class="d">从微软官网下载并安装 .NET SDK，它包含编译器与运行时。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>02</b> · IDE</span><div><div class="h">选择编辑器</div><div class="d">推荐 Visual Studio（Windows）、VS Code + C# 插件，或 Rider。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>03</b> · Create</span><div><div class="h">创建并运行项目</div><div class="d">使用 dotnet new console 创建控制台项目，dotnet run 运行。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 7 · 第一个程序 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">01 / C# 入门</span>
+          <h1 class="h-1">第一个 C# 程序</h1>
+        </div>
+        <p class="lead">认识程序的入口方法与控制台输出。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// Program.cs —— 你的第一个 C# 程序</span>
+<span class="kw">using</span> <span class="ty">System</span>;
+
+<span class="kw">class</span> <span class="ty">Program</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"Hello, C#!"</span>);
+    }
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">Main</span> 是程序入口；<span class="mono">Console.WriteLine</span> 向控制台输出一行文本并换行。</span></div>
+    </section>
+
+    <!-- ===================== 8 · 程序结构 ===================== -->
+    <section class="slide s-dense-list">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">01 / C# 入门</span>
+          <h1 class="h-1">程序结构解析</h1>
+        </div>
+        <p class="lead">一个最小 C# 程序由以下六个部分构成。</p>
+      </div>
+      <div class="dense-list-grid stagger d2">
+        <div class="dl-item"><span class="dl-idx">01</span><div><div class="dl-title">using 指令</div><div class="dl-desc">引入命名空间，便于直接使用其中的类型。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">02</span><div><div class="dl-title">命名空间 namespace</div><div class="dl-desc">组织代码，避免类型名称冲突。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">03</span><div><div class="dl-title">类 class</div><div class="dl-desc">C# 一切代码都封装在类中。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">04</span><div><div class="dl-title">Main 方法</div><div class="dl-desc">程序入口，程序从这里开始执行。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">05</span><div><div class="dl-title">语句 statement</div><div class="dl-desc">以分号结尾，是执行的最小单元。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">06</span><div><div class="dl-title">注释 comment</div><div class="dl-desc">用 // 或 /* */ 说明代码，不参与执行。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 9 · 什么是变量 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">02 / 变量</span>
+        <h1 class="h-1">什么是变量？</h1>
+        <p class="lead">变量是内存中用来存储数据、并可通过名称访问的"容器"。它的值在程序运行期间可以被改变。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>类型</b></div><div class="lbl">决定存储什么</div></div>
+          <div><div class="k"><b>名称</b></div><div class="lbl">决定如何访问</div></div>
+          <div><div class="k"><b>值</b></div><div class="lbl">决定存了什么</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Type</div><div class="title">数据类型</div><div class="desc">变量必须先声明类型，如 int、string、double。</div></div><div class="badge">type</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Name</div><div class="title">变量名</div><div class="desc">遵循命名规范，见名知意，如 age、userName。</div></div><div class="badge">name</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Value</div><div class="title">存储的值</div><div class="desc">通过赋值改变，读取时返回当前存储的数据。</div></div><div class="badge">value</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 10 · 变量声明 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">变量声明语法</h1>
+        </div>
+        <p class="lead">数据类型 变量名 = 初始值；</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> age = <span class="num">18</span>;           <span class="cm">// 整数</span>
+<span class="kw">double</span> price = <span class="num">9.99</span>;    <span class="cm">// 浮点数</span>
+<span class="kw">string</span> name = <span class="str">"小明"</span>;   <span class="cm">// 字符串</span>
+<span class="kw">bool</span> isOk = <span class="kw">true</span>;       <span class="cm">// 布尔</span>
+
+<span class="cm">// 也可以先声明，再赋值</span>
+<span class="kw">int</span> score;
+score = <span class="num">95</span>;</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>声明变量必须指定类型；变量须先赋值后才能使用，否则编译报错。</span></div>
+    </section>
+
+    <!-- ===================== 11 · 数据类型概览 ===================== -->
+    <section class="slide s-dense-table">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">常用数据类型概览</h1>
+        </div>
+        <p class="lead">先认识最常用的五种内置类型。</p>
+      </div>
+      <div class="dense-table stagger d2">
+        <div class="dt-row dt-header"><span>类型</span><span>分类</span><span>范围 · 大小</span><span>示例</span></div>
+        <div class="dt-row"><span class="dt-label mono">int</span><span>整数</span><span>-2³¹ ~ 2³¹-1</span><span>42</span></div>
+        <div class="dt-row"><span class="dt-label mono">double</span><span>浮点</span><span>约 15~16 位有效数字</span><span>3.14</span></div>
+        <div class="dt-row"><span class="dt-label mono">char</span><span>字符</span><span>单个 Unicode 字符</span><span>'A'</span></div>
+        <div class="dt-row"><span class="dt-label mono">string</span><span>字符串</span><span>引用类型</span><span>"Hi"</span></div>
+        <div class="dt-row"><span class="dt-label mono">bool</span><span>布尔</span><span>true / false</span><span>true</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 12 · 整数类型 ===================== -->
+    <section class="slide s-dense-table">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">整数类型</h1>
+        </div>
+        <p class="lead">按存储大小与是否支持负数，整数分为多种。</p>
+      </div>
+      <div class="dense-table stagger d2">
+        <div class="dt-row dt-header"><span>类型</span><span>大小</span><span>取值范围</span><span>示例</span></div>
+        <div class="dt-row"><span class="dt-label mono">byte</span><span>8 位</span><span>0 ~ 255</span><span>200</span></div>
+        <div class="dt-row"><span class="dt-label mono">short</span><span>16 位</span><span>-32768 ~ 32767</span><span>-1000</span></div>
+        <div class="dt-row"><span class="dt-label mono">int</span><span>32 位</span><span>-2³¹ ~ 2³¹-1</span><span>123456</span></div>
+        <div class="dt-row"><span class="dt-label mono">long</span><span>64 位</span><span>-2⁶³ ~ 2⁶³-1</span><span>9000000000L</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 13 · 浮点/字符/布尔 ===================== -->
+    <section class="slide s-dense-table">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">浮点·字符·布尔</h1>
+        </div>
+        <p class="lead">处理小数、单个字符与真假判断。</p>
+      </div>
+      <div class="dense-table stagger d2">
+        <div class="dt-row dt-header"><span>类型</span><span>说明</span><span>范围 · 精度</span><span>示例</span></div>
+        <div class="dt-row"><span class="dt-label mono">float</span><span>单精度浮点</span><span>约 7 位有效数字</span><span>3.14f</span></div>
+        <div class="dt-row"><span class="dt-label mono">double</span><span>双精度浮点</span><span>约 15~16 位</span><span>3.14159</span></div>
+        <div class="dt-row"><span class="dt-label mono">decimal</span><span>高精度小数</span><span>金融计算首选</span><span>19.99m</span></div>
+        <div class="dt-row"><span class="dt-label mono">char</span><span>单字符</span><span>Unicode 字符</span><span>'中'</span></div>
+        <div class="dt-row"><span class="dt-label mono">bool</span><span>布尔</span><span>true / false</span><span>false</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 14 · 命名规范 ===================== -->
+    <section class="slide s-dense-list">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">变量命名规范</h1>
+        </div>
+        <p class="lead">好名字让代码自解释，是编程的基本素养。</p>
+      </div>
+      <div class="dense-list-grid stagger d2">
+        <div class="dl-item"><span class="dl-idx">01</span><div><div class="dl-title">驼峰命名 camelCase</div><div class="dl-desc">变量与参数首字母小写，如 userName。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">02</span><div><div class="dl-title">帕斯卡 PascalCase</div><div class="dl-desc">类与方法首字母大写，如 GetName。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">03</span><div><div class="dl-title">见名知意</div><div class="dl-desc">用 totalPrice 而非 t，表达清晰含义。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">04</span><div><div class="dl-title">不使用拼音缩写</div><div class="dl-desc">优先英文单词，避免 dq、xm 这类缩写。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">05</span><div><div class="dl-title">不能以数字开头</div><div class="dl-desc">可含数字但首字符须是字母或下划线。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">06</span><div><div class="dl-title">避开关键字</div><div class="dl-desc">不能使用 int、class、if 等保留字。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 15 · 赋值与初始化 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">赋值与初始化</h1>
+        </div>
+        <p class="lead">用 = 将右侧的值存入左侧变量。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> a = <span class="num">10</span>;
+<span class="kw">int</span> b = a + <span class="num">5</span>;    <span class="cm">// 使用变量 a 的值</span>
+a = <span class="num">20</span>;           <span class="cm">// 重新赋值</span>
+
+<span class="cm">// 一次声明多个变量</span>
+<span class="kw">int</span> x = <span class="num">1</span>, y = <span class="num">2</span>, z = <span class="num">3</span>;
+
+<span class="cm">// 交换两个变量的值</span>
+<span class="kw">int</span> m = <span class="num">3</span>, n = <span class="num">5</span>, tmp;
+tmp = m; m = n; n = tmp;</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>等号 <span class="mono">=</span> 表示"赋值"，把右边表达式的计算结果存入左边的变量。</span></div>
+    </section>
+
+    <!-- ===================== 16 · 常量 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">常量 const</h1>
+        </div>
+        <p class="lead">一经声明、不可修改的值。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">const double</span> PI = <span class="num">3.14159</span>;
+<span class="kw">const string</span> APP_NAME = <span class="str">"计算器"</span>;
+
+<span class="cm">// PI = 3.14;  // 错误：常量不能被修改</span>
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(APP_NAME + <span class="str">" 的 π = "</span> + PI);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">const</span> 常量必须在声明时赋值，此后不可更改，命名通常使用全大写。</span></div>
+    </section>
+
+    <!-- ===================== 17 · 类型转换 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">类型转换</h1>
+        </div>
+        <p class="lead">在不同数据类型之间转换值。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// 隐式转换：安全，小范围 → 大范围</span>
+<span class="kw">int</span> i = <span class="num">100</span>;
+<span class="kw">double</span> d = i;          <span class="cm">// int → double</span>
+
+<span class="cm">// 显式转换（强制类型转换）</span>
+<span class="kw">double</span> x = <span class="num">9.99</span>;
+<span class="kw">int</span> y = (<span class="kw">int</span>)x;        <span class="cm">// y = 9，小数被截断</span>
+
+<span class="cm">// 字符串 ↔ 数字</span>
+<span class="kw">int</span> n = <span class="kw">int</span>.<span class="fn">Parse</span>(<span class="str">"123"</span>);
+<span class="kw">string</span> s = n.<span class="fn">ToString</span>();</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>小转大隐式完成；大转小需用 <span class="mono">(类型)</span> 强转，可能丢失精度。</span></div>
+    </section>
+
+    <!-- ===================== 18 · 值类型 vs 引用类型 ===================== -->
+    <section class="slide s-comparison">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">值类型 vs 引用类型</h1>
+        </div>
+        <p class="lead">理解两种存储方式，是深入 C# 的关键。</p>
+      </div>
+      <div class="compare-table stagger d2">
+        <div class="cmp-row cmp-header" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim"></span><span>值类型</span><span>引用类型</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">存储内容</span><span>数据本身</span><span>地址（引用）</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">常见类型</span><span class="mono">int, double, bool, char, struct</span><span class="mono">string, class, 数组</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">默认值</span><span>0 或 false</span><span>null</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">复制行为</span><span>复制一份值</span><span>复制引用（共享对象）</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">内存位置</span><span>栈（stack）</span><span>堆（heap）</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 19 · var 关键字 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">02 / 变量</span>
+          <h1 class="h-1">var 类型推断</h1>
+        </div>
+        <p class="lead">让编译器根据初始值自动推断类型。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">var</span> age = <span class="num">18</span>;                  <span class="cm">// 推断为 int</span>
+<span class="kw">var</span> name = <span class="str">"小明"</span>;             <span class="cm">// 推断为 string</span>
+<span class="kw">var</span> list = <span class="kw">new</span> <span class="ty">List</span>&lt;<span class="kw">int</span>&gt;();   <span class="cm">// 推断为 List&lt;int&gt;</span>
+
+<span class="cm">// var 必须初始化，类型在编译期确定</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">var</span> 只是语法糖，变量仍是强类型；声明时必须初始化。</span></div>
+    </section>
+
+    <!-- ===================== 20 · 作用域 ===================== -->
+    <section class="slide s-refine">
+      <div class="stagger">
+        <span class="kicker">02 / 变量</span>
+        <h1 class="h-1">变量的作用域</h1>
+        <p class="lead">变量只在它被声明的代码块内可见、可用。</p>
+      </div>
+      <div class="refine-list stagger d2">
+        <div class="refine-item"><span class="idx"><b>01</b> · Block</span><div><div class="h">块级作用域</div><div class="d">一对花括号 {} 定义了一个作用域边界。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>02</b> · Local</span><div><div class="h">局部变量</div><div class="d">方法内部声明的变量，方法外不可访问。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>03</b> · Field</span><div><div class="h">类字段</div><div class="d">声明在类中，可被整个类的成员访问。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>04</b> · Conflict</span><div><div class="h">就近原则</div><div class="d">内层可访问外层变量，同名时以内层为准。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 21 · 第一学时小结 ===================== -->
+    <section class="slide s-metrics">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">02 / 小结</span>
+          <h1 class="h-1">第一学时 · 核心回顾</h1>
+        </div>
+        <p class="lead">变量与数据类型，是后续所有内容的地基。</p>
+      </div>
+      <div class="metrics-grid stagger d2">
+        <div class="metric-cell"><span class="metric-value"><b>int</b> double</span><span class="metric-label">数值类型</span><span class="metric-delta positive">整数 / 浮点</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>string</b></span><span class="metric-label">字符串类型</span><span class="metric-delta positive">文本数据</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>const</b></span><span class="metric-label">常量</span><span class="metric-delta positive">不可修改</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>(类型)</b></span><span class="metric-label">强制转换</span><span class="metric-delta positive">显式转换</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>var</b></span><span class="metric-label">类型推断</span><span class="metric-delta positive">编译期确定</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>{ }</b></span><span class="metric-label">作用域</span><span class="metric-delta positive">可见范围</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 22 · 第二学时章节页 ===================== -->
+    <section class="slide s-think">
+      <div class="think-wrap stagger">
+        <div class="think-kicker">Lesson 02 · 第二学时</div>
+        <div class="think-q">掌控程序流<br><em>字符串·条件·循环</em></div>
+        <p class="think-sub">掌握字符串的处理技巧，学会用条件语句做判断、用循环重复执行，让程序真正"动起来"。</p>
+        <div class="think-note"><b>目标</b><span>能灵活处理文本，并用条件与循环解决常见逻辑问题</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 23 · 什么是字符串 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">03 / 字符串</span>
+        <h1 class="h-1">什么是字符串？</h1>
+        <p class="lead">字符串（string）是由零个或多个字符组成的文本序列，用双引号包裹，是编程中最常用的数据类型之一。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>不可变</b></div><div class="lbl">内容不可修改</div></div>
+          <div><div class="k"><b>[i]</b></div><div class="lbl">索引访问字符</div></div>
+          <div><div class="k"><b>方法</b></div><div class="lbl">大量内置函数</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Declare</div><div class="title">声明字符串</div><div class="desc">string s = "你好"; 用双引号包裹文本。</div></div><div class="badge">string</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Index</div><div class="title">索引访问</div><div class="desc">s[0] 获取第一个字符，下标从 0 开始。</div></div><div class="badge">index</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Methods</div><div class="title">内置方法</div><div class="desc">Length、ToUpper、Replace 等方法丰富。</div></div><div class="badge">methods</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 24 · 字符串声明 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">字符串声明与长度</h1>
+        </div>
+        <p class="lead">声明字符串、获取长度、按索引取字符。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">string</span> name = <span class="str">"小明"</span>;
+<span class="kw">string</span> empty = <span class="str">""</span>;              <span class="cm">// 空字符串</span>
+<span class="kw">string</span> path = <span class="str">@"C:\temp\file"</span>;  <span class="cm">// 逐字字符串 @</span>
+
+<span class="cm">// 字符串长度</span>
+<span class="kw">int</span> len = name.<span class="fn">Length</span>;          <span class="cm">// 2</span>
+
+<span class="cm">// 按索引访问单个字符</span>
+<span class="kw">char</span> first = name[<span class="num">0</span>];          <span class="cm">// '小'</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>字符串是不可变的；<span class="mono">Length</span> 获取长度，<span class="mono">[索引]</span> 访问单个字符。</span></div>
+    </section>
+
+    <!-- ===================== 25 · 字符串拼接 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">字符串拼接</h1>
+        </div>
+        <p class="lead">用 + 或 Concat 把多个字符串连在一起。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">string</span> a = <span class="str">"Hello"</span>;
+<span class="kw">string</span> b = <span class="str">"World"</span>;
+
+<span class="cm">// 用 + 拼接</span>
+<span class="kw">string</span> c = a + <span class="str">" "</span> + b;          <span class="cm">// "Hello World"</span>
+
+<span class="cm">// 用 string.Concat 拼接</span>
+<span class="kw">string</span> d = <span class="kw">string</span>.<span class="fn">Concat</span>(a, <span class="str">" "</span>, b);
+
+<span class="cm">// 数字与字符串拼接会自动转文本</span>
+<span class="kw">int</span> n = <span class="num">42</span>;
+<span class="kw">string</span> s = <span class="str">"答案是 "</span> + n;     <span class="cm">// "答案是 42"</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>用 <span class="mono">+</span> 拼接最直观；数字与字符串相加会自动转换为文本。</span></div>
+    </section>
+
+    <!-- ===================== 26 · 字符串插值 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">字符串插值 $</h1>
+        </div>
+        <p class="lead">用 $ 与花括号把变量直接嵌入文本。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">string</span> name = <span class="str">"小明"</span>;
+<span class="kw">int</span> age = <span class="num">18</span>;
+
+<span class="cm">// 字符串插值：$ 前缀 + {变量}</span>
+<span class="kw">string</span> s = <span class="str">$"我叫{name}，今年{age}岁。"</span>;
+
+<span class="cm">// 花括号内还能嵌入表达式</span>
+<span class="kw">string</span> t = <span class="str">$"明年我{age + 1}岁。"</span>;
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(s);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">$"..."</span> 中的 <span class="mono">{ }</span> 可嵌入变量或表达式，比 + 拼接更清晰易读。</span></div>
+    </section>
+
+    <!-- ===================== 27 · 转义字符 ===================== -->
+    <section class="slide s-dense-list">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">转义字符</h1>
+        </div>
+        <p class="lead">用反斜杠 \ 表示特殊字符。</p>
+      </div>
+      <div class="dense-list-grid stagger d2">
+        <div class="dl-item"><span class="dl-idx">01</span><div><div class="dl-title mono">\n</div><div class="dl-desc">换行，另起一行。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">02</span><div><div class="dl-title mono">\t</div><div class="dl-desc">水平制表符，对齐文本。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">03</span><div><div class="dl-title mono">\"</div><div class="dl-desc">输出双引号本身。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">04</span><div><div class="dl-title mono">\\</div><div class="dl-desc">输出反斜杠本身。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">05</span><div><div class="dl-title mono">\r</div><div class="dl-desc">回车符（常用于 Windows 换行）。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">06</span><div><div class="dl-title mono">@"..."</div><div class="dl-desc">逐字字符串，反斜杠原样保留。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 28 · 字符串常用方法 ===================== -->
+    <section class="slide s-dense-table">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">字符串常用方法</h1>
+        </div>
+        <p class="lead">这些方法帮你轻松完成文本处理。</p>
+      </div>
+      <div class="dense-table stagger d2">
+        <div class="dt-row dt-header"><span>方法</span><span>作用</span><span>示例</span><span>结果</span></div>
+        <div class="dt-row"><span class="dt-label mono">Length</span><span>获取长度</span><span>"Hi".Length</span><span>2</span></div>
+        <div class="dt-row"><span class="dt-label mono">ToUpper</span><span>转大写</span><span>"hi".ToUpper()</span><span>"HI"</span></div>
+        <div class="dt-row"><span class="dt-label mono">ToLower</span><span>转小写</span><span>"HI".ToLower()</span><span>"hi"</span></div>
+        <div class="dt-row"><span class="dt-label mono">Trim</span><span>去首尾空格</span><span>" a ".Trim()</span><span>"a"</span></div>
+        <div class="dt-row"><span class="dt-label mono">Replace</span><span>替换子串</span><span>"abc".Replace("b","x")</span><span>"axc"</span></div>
+        <div class="dt-row"><span class="dt-label mono">Contains</span><span>判断包含</span><span>"abc".Contains("b")</span><span>true</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 29 · 字符串方法/比较 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">03 / 字符串</span>
+          <h1 class="h-1">查找与比较</h1>
+        </div>
+        <p class="lead">定位子串、截取片段、比较相等。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">string</span> s = <span class="str">"Hello"</span>;
+
+<span class="kw">bool</span> has = s.<span class="fn">Contains</span>(<span class="str">"ell"</span>);     <span class="cm">// true</span>
+<span class="kw">int</span> idx = s.<span class="fn">IndexOf</span>(<span class="str">"l"</span>);         <span class="cm">// 2</span>
+<span class="kw">string</span> sub = s.<span class="fn">Substring</span>(<span class="num">1</span>, <span class="num">3</span>);  <span class="cm">// "ell"</span>
+<span class="kw">string</span> rep = s.<span class="fn">Replace</span>(<span class="str">"l"</span>, <span class="str">"L"</span>); <span class="cm">// "HeLLo"</span>
+
+<span class="cm">// 相等比较</span>
+<span class="kw">bool</span> eq = s == <span class="str">"Hello"</span>;          <span class="cm">// true</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>字符串比较用 <span class="mono">==</span> 或 <span class="mono">Equals</span>，默认区分大小写。</span></div>
+    </section>
+
+    <!-- ===================== 30 · 条件语句概述 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">04 / 条件语句</span>
+        <h1 class="h-1">条件语句概述</h1>
+        <p class="lead">条件语句让程序能够"做判断"，根据不同的条件选择不同的执行路径，是程序逻辑的核心。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>if</b></div><div class="lbl">判断分支</div></div>
+          <div><div class="k"><b>switch</b></div><div class="lbl">多路匹配</div></div>
+          <div><div class="k"><b>?:</b></div><div class="lbl">三元表达式</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">if</div><div class="title">if 系列</div><div class="desc">if / else if / else，最常用的判断方式。</div></div><div class="badge">条件</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">switch</div><div class="title">switch 分支</div><div class="desc">对同一变量多值匹配，结构更清晰。</div></div><div class="badge">多分支</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">ternary</div><div class="title">三元运算符</div><div class="desc">条件 ? 值1 : 值2，一行完成简单判断。</div></div><div class="badge">简写</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 31 · if ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">if 语句</h1>
+        </div>
+        <p class="lead">条件成立时，才执行代码块。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> score = <span class="num">85</span>;
+
+<span class="kw">if</span> (score &gt;= <span class="num">60</span>)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"及格了！"</span>);
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">if</span> 后面的条件为 <span class="mono">true</span> 时，才执行花括号内的代码。</span></div>
+    </section>
+
+    <!-- ===================== 32 · if-else ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">if-else 二选一</h1>
+        </div>
+        <p class="lead">条件成立走 if，否则走 else。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> score = <span class="num">85</span>;
+
+<span class="kw">if</span> (score &gt;= <span class="num">60</span>)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"及格"</span>);
+}
+<span class="kw">else</span>
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"不及格"</span>);
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>二选一的判断：<span class="mono">if</span> 条件成立执行 if 块，否则执行 <span class="mono">else</span> 块。</span></div>
+    </section>
+
+    <!-- ===================== 33 · else-if ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">else if 多分支</h1>
+        </div>
+        <p class="lead">依次判断多个条件，命中即停。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> score = <span class="num">85</span>;
+
+<span class="kw">if</span> (score &gt;= <span class="num">90</span>)
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"优秀"</span>);
+<span class="kw">else if</span> (score &gt;= <span class="num">80</span>)
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"良好"</span>);
+<span class="kw">else if</span> (score &gt;= <span class="num">60</span>)
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"及格"</span>);
+<span class="kw">else</span>
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"不及格"</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>多分支依次判断，命中一个后其余不再执行；单条语句可省略花括号。</span></div>
+    </section>
+
+    <!-- ===================== 34 · 嵌套 if ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">嵌套 if</h1>
+        </div>
+        <p class="lead">if 里面再套 if，处理复合条件。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">bool</span> isLogin = <span class="kw">true</span>;
+<span class="kw">int</span> score = <span class="num">85</span>;
+
+<span class="kw">if</span> (isLogin)
+{
+    <span class="kw">if</span> (score &gt;= <span class="num">90</span>)
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"优秀"</span>);
+    <span class="kw">else</span>
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"继续努力"</span>);
+}
+<span class="kw">else</span>
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"请先登录"</span>);
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>if 可以嵌套，注意花括号配对与缩进，保持代码清晰。</span></div>
+    </section>
+
+    <!-- ===================== 35 · 三元运算符 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">三元运算符 ?:</h1>
+        </div>
+        <p class="lead">一行写出简单的 if-else 判断。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> score = <span class="num">85</span>;
+
+<span class="kw">string</span> result = score &gt;= <span class="num">60</span> ? <span class="str">"及格"</span> : <span class="str">"不及格"</span>;
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(result);
+
+<span class="cm">// 等价于：</span>
+<span class="cm">// if (score >= 60) result = "及格";</span>
+<span class="cm">// else             result = "不及格";</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">条件 ? 值1 : 值2</span>，条件为真返回"值1"，否则返回"值2"。</span></div>
+    </section>
+
+    <!-- ===================== 36 · switch ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">switch 语句</h1>
+        </div>
+        <p class="lead">对同一变量做多值匹配。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> day = <span class="num">3</span>;
+
+<span class="kw">switch</span> (day)
+{
+    <span class="kw">case</span> <span class="num">1</span>:
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"星期一"</span>);
+        <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">2</span>:
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"星期二"</span>);
+        <span class="kw">break</span>;
+    <span class="kw">default</span>:
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"其他"</span>);
+        <span class="kw">break</span>;
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">switch</span> 按值匹配 <span class="mono">case</span>，<span class="mono">default</span> 处理未匹配情况，<span class="mono">break</span> 结束分支。</span></div>
+    </section>
+
+    <!-- ===================== 37 · switch 表达式 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">04 / 条件语句</span>
+          <h1 class="h-1">switch 表达式</h1>
+        </div>
+        <p class="lead">C# 8+ 更简洁的 switch 写法。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> day = <span class="num">3</span>;
+
+<span class="kw">string</span> name = day <span class="kw">switch</span>
+{
+    <span class="num">1</span> =&gt; <span class="str">"星期一"</span>,
+    <span class="num">2</span> =&gt; <span class="str">"星期二"</span>,
+    <span class="num">3</span> =&gt; <span class="str">"星期三"</span>,
+    _ =&gt; <span class="str">"其他"</span>
+};
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(name);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>switch 表达式用 <span class="mono">=&gt;</span> 直接返回结果，<span class="mono">_</span> 是默认匹配，无需 break。</span></div>
+    </section>
+
+    <!-- ===================== 38 · 循环概述 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">05 / 循环</span>
+        <h1 class="h-1">循环概述</h1>
+        <p class="lead">循环让程序重复执行一段代码，避免重复书写，是处理批量数据与迭代逻辑的利器。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>for</b></div><div class="lbl">计数循环</div></div>
+          <div><div class="k"><b>while</b></div><div class="lbl">条件循环</div></div>
+          <div><div class="k"><b>foreach</b></div><div class="lbl">遍历集合</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">for</div><div class="title">计数循环</div><div class="desc">已知循环次数时使用，结构清晰。</div></div><div class="badge">for</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">while</div><div class="title">条件循环</div><div class="desc">未知次数、按条件重复时使用。</div></div><div class="badge">while</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">do-while</div><div class="title">至少一次</div><div class="desc">先执行再判断，至少运行一次。</div></div><div class="badge">do</div></div>
+        <div class="brand-card"><div class="num">04</div><div><div class="tag">foreach</div><div class="title">遍历集合</div><div class="desc">专用于遍历数组与集合。</div></div><div class="badge">foreach</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 39 · for ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">for 循环</h1>
+        </div>
+        <p class="lead">适合已知次数的计数循环。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// for (初始化; 条件; 迭代)</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(i);
+}
+<span class="cm">// 输出：0 1 2 3 4</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>三部分依次为：初始化、循环条件、迭代更新；条件为 <span class="mono">false</span> 时结束。</span></div>
+    </section>
+
+    <!-- ===================== 40 · while ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">while 循环</h1>
+        </div>
+        <p class="lead">先判断条件，成立才执行。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> i = <span class="num">0</span>;
+
+<span class="kw">while</span> (i &lt; <span class="num">5</span>)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(i);
+    i++;
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>先判断后执行，条件为 <span class="mono">true</span> 才进入循环体；别忘了在循环体内更新条件变量。</span></div>
+    </section>
+
+    <!-- ===================== 41 · do-while ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">do-while 循环</h1>
+        </div>
+        <p class="lead">先执行一次，再判断条件。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span> i = <span class="num">0</span>;
+
+<span class="kw">do</span>
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(i);
+    i++;
+} <span class="kw">while</span> (i &lt; <span class="num">5</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>先执行一次循环体再判断，<span class="kw">保证至少执行一次</span>。</span></div>
+    </section>
+
+    <!-- ===================== 42 · foreach ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">foreach 循环</h1>
+        </div>
+        <p class="lead">遍历数组或集合中的每个元素。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">int</span>[] nums = { <span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span> };
+
+<span class="kw">foreach</span> (<span class="kw">int</span> n <span class="kw">in</span> nums)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(n);
+}
+<span class="cm">// 输出：10 20 30</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">foreach</span> 自动取出集合中每个元素，简单安全，适合只读遍历。</span></div>
+    </section>
+
+    <!-- ===================== 43 · break/continue ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">break 与 continue</h1>
+        </div>
+        <p class="lead">控制循环的跳出与跳过。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">10</span>; i++)
+{
+    <span class="kw">if</span> (i == <span class="num">3</span>) <span class="kw">continue</span>;  <span class="cm">// 跳过本次</span>
+    <span class="kw">if</span> (i == <span class="num">7</span>) <span class="kw">break</span>;     <span class="cm">// 终止循环</span>
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(i);
+}
+<span class="cm">// 输出：0 1 2 4 5 6</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">continue</span> 跳过本次剩余代码继续下一轮；<span class="mono">break</span> 直接终止整个循环。</span></div>
+    </section>
+
+    <!-- ===================== 44 · 循环嵌套 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">05 / 循环</span>
+          <h1 class="h-1">循环嵌套</h1>
+        </div>
+        <p class="lead">循环套循环，打印九九乘法表。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">9</span>; i++)
+{
+    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">1</span>; j &lt;= i; j++)
+    {
+        <span class="ty">Console</span>.<span class="fn">Write</span>(<span class="str">$"{j}×{i}={i * j}\t"</span>);
+    }
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>();
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>内层循环完整执行一轮，外层循环才前进一步；注意控制层数避免逻辑混乱。</span></div>
+    </section>
+
+    <!-- ===================== 45 · 第二学时小结 ===================== -->
+    <section class="slide s-metrics">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">05 / 小结</span>
+          <h1 class="h-1">第二学时 · 核心回顾</h1>
+        </div>
+        <p class="lead">字符串处理与程序控制流，是编写实用程序的关键。</p>
+      </div>
+      <div class="metrics-grid stagger d2">
+        <div class="metric-cell"><span class="metric-value"><b>string</b></span><span class="metric-label">字符串</span><span class="metric-delta positive">文本处理</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>$"{ }"</b></span><span class="metric-label">字符串插值</span><span class="metric-delta positive">嵌入变量</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>if</b> else</span><span class="metric-label">条件判断</span><span class="metric-delta positive">分支逻辑</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>switch</b></span><span class="metric-label">多路匹配</span><span class="metric-delta positive">清晰分派</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>for</b> while</span><span class="metric-label">循环结构</span><span class="metric-delta positive">重复执行</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>break</b> continue</span><span class="metric-label">循环控制</span><span class="metric-delta positive">跳出 / 跳过</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 46 · 第三学时章节页 ===================== -->
+    <section class="slide s-think">
+      <div class="think-wrap stagger">
+        <div class="think-kicker">Lesson 03 · 第三学时</div>
+        <div class="think-q">把代码装进盒子<br><em>函数 · 方法</em></div>
+        <p class="think-sub">学会把重复逻辑封装成函数，理解参数与返回值，让代码更简洁、更可复用。</p>
+        <div class="think-note"><b>目标</b><span>能定义并调用函数，灵活运用参数、返回值、重载与递归</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 47 · 什么是函数 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">06 / 函数</span>
+        <h1 class="h-1">什么是函数？</h1>
+        <p class="lead">函数（方法）是一段可复用的代码块，把一组操作封装起来，通过名称即可重复调用。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>复用</b></div><div class="lbl">一次定义多次调用</div></div>
+          <div><div class="k"><b>参数</b></div><div class="lbl">接收外部输入</div></div>
+          <div><div class="k"><b>返回值</b></div><div class="lbl">输出计算结果</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Encapsulate</div><div class="title">封装复用</div><div class="desc">把一段逻辑收进方法，需要时直接调用。</div></div><div class="badge">复用</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Parameter</div><div class="title">接收参数</div><div class="desc">通过形参传入数据，方法据此执行。</div></div><div class="badge">输入</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Return</div><div class="title">返回结果</div><div class="desc">用 return 把计算结果交还给调用方。</div></div><div class="badge">输出</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 48 · 函数定义语法 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">函数定义语法</h1>
+        </div>
+        <p class="lead">返回类型 + 方法名 + 参数列表 + 方法体。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// 返回类型 方法名(参数列表) { 方法体 }</span>
+<span class="kw">static void</span> <span class="fn">SayHello</span>()
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"你好！"</span>);
+}
+
+<span class="cm">// 调用方法</span>
+<span class="fn">SayHello</span>();</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>方法定义在类中；调用时使用 <span class="mono">方法名()</span>。</span></div>
+    </section>
+
+    <!-- ===================== 49 · void 无返回值 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">void 无返回值</h1>
+        </div>
+        <p class="lead">只执行操作、不返回结果的方法。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static void</span> <span class="fn">ShowMenu</span>()
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"1. 开始游戏"</span>);
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"2. 退出"</span>);
+}
+
+<span class="fn">ShowMenu</span>();</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">void</span> 表示方法不返回任何值，仅执行其中的语句。</span></div>
+    </section>
+
+    <!-- ===================== 50 · 带参数 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">带参数的方法</h1>
+        </div>
+        <p class="lead">通过参数向方法传递数据。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static void</span> <span class="fn">Greet</span>(<span class="kw">string</span> name)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"你好，{name}！"</span>);
+}
+
+<span class="fn">Greet</span>(<span class="str">"小明"</span>);
+<span class="fn">Greet</span>(<span class="str">"小红"</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>形参写在括号内；调用时传入实参，按位置一一对应。</span></div>
+    </section>
+
+    <!-- ===================== 51 · 返回值 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">返回值 return</h1>
+        </div>
+        <p class="lead">用 return 把计算结果交还给调用方。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static int</span> <span class="fn">Add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b)
+{
+    <span class="kw">return</span> a + b;
+}
+
+<span class="kw">int</span> sum = <span class="fn">Add</span>(<span class="num">3</span>, <span class="num">5</span>);   <span class="cm">// 8</span>
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(sum);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>返回类型写在方法名前；<span class="mono">return</span> 返回结果并结束方法执行。</span></div>
+    </section>
+
+    <!-- ===================== 52 · 多参数/命名参数 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">多参数与命名参数</h1>
+        </div>
+        <p class="lead">传多个参数，或用名称指定参数。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static double</span> <span class="fn">Calc</span>(<span class="kw">double</span> price, <span class="kw">int</span> count, <span class="kw">double</span> discount)
+{
+    <span class="kw">return</span> price * count * discount;
+}
+
+<span class="cm">// 位置参数（按顺序传入）</span>
+<span class="kw">double</span> r1 = <span class="fn">Calc</span>(<span class="num">10.0</span>, <span class="num">3</span>, <span class="num">0.8</span>);
+
+<span class="cm">// 命名参数（可打乱顺序）</span>
+<span class="kw">double</span> r2 = <span class="fn">Calc</span>(count: <span class="num">3</span>, discount: <span class="num">0.8</span>, price: <span class="num">10.0</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>命名参数用 <span class="mono">名称: 值</span> 传入，可忽略顺序，提高可读性。</span></div>
+    </section>
+
+    <!-- ===================== 53 · 可选参数 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">可选参数与默认值</h1>
+        </div>
+        <p class="lead">给参数设默认值，调用时可省略。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static void</span> <span class="fn">Greet</span>(<span class="kw">string</span> name, <span class="kw">string</span> title = <span class="str">"同学"</span>)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"你好，{title}{name}！"</span>);
+}
+
+<span class="fn">Greet</span>(<span class="str">"小明"</span>);               <span class="cm">// 你好，同学小明！</span>
+<span class="fn">Greet</span>(<span class="str">"小红"</span>, <span class="str">"老师"</span>);       <span class="cm">// 你好，老师小红！</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>可选参数需给默认值；默认参数必须放在必选参数之后。</span></div>
+    </section>
+
+    <!-- ===================== 54 · 方法重载 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">方法重载</h1>
+        </div>
+        <p class="lead">同名方法，参数列表不同。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">static int</span> <span class="fn">Add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) { <span class="kw">return</span> a + b; }
+
+<span class="kw">static double</span> <span class="fn">Add</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a + b; }
+
+<span class="kw">static int</span> <span class="fn">Add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b, <span class="kw">int</span> c) { <span class="kw">return</span> a + b + c; }
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="fn">Add</span>(<span class="num">1</span>, <span class="num">2</span>));      <span class="cm">// int 版本</span>
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="fn">Add</span>(<span class="num">1.5</span>, <span class="num">2.5</span>));  <span class="cm">// double 版本</span>
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="fn">Add</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>));   <span class="cm">// 三参数版本</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>重载 = 方法名相同、参数列表（个数或类型）不同；仅返回类型不同不构成重载。</span></div>
+    </section>
+
+    <!-- ===================== 55 · 作用域与局部变量 ===================== -->
+    <section class="slide s-refine">
+      <div class="stagger">
+        <span class="kicker">06 / 函数</span>
+        <h1 class="h-1">方法与作用域</h1>
+        <p class="lead">理解方法内部变量的可见范围与生命周期。</p>
+      </div>
+      <div class="refine-list stagger d2">
+        <div class="refine-item"><span class="idx"><b>01</b> · Local</span><div><div class="h">局部变量</div><div class="d">方法内声明的变量，只在方法内可见、有效。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>02</b> · Parameter</span><div><div class="h">形参</div><div class="d">形参只在该方法内有效，方法结束即失效。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>03</b> · Return</span><div><div class="h">return 提前结束</div><div class="d">遇到 return 方法立即返回，后续代码不执行。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>04</b> · Stack</span><div><div class="h">调用栈</div><div class="d">方法调用时入栈，返回时出栈，各层变量相互独立。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 56 · 递归 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">递归调用</h1>
+        </div>
+        <p class="lead">方法自己调用自己，解决可分解问题。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// 计算 n 的阶乘 n!</span>
+<span class="kw">static int</span> <span class="fn">Factorial</span>(<span class="kw">int</span> n)
+{
+    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>;   <span class="cm">// 终止条件</span>
+    <span class="kw">return</span> n * <span class="fn">Factorial</span>(n - <span class="num">1</span>);
+}
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="fn">Factorial</span>(<span class="num">5</span>));  <span class="cm">// 120</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>递归必须包含终止条件，否则会导致无限调用、栈溢出。</span></div>
+    </section>
+
+    <!-- ===================== 57 · 值传递 vs 引用传递 ===================== -->
+    <section class="slide s-comparison">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">值传递 vs 引用传递</h1>
+        </div>
+        <p class="lead">默认按值传递，ref 可按引用传递。</p>
+      </div>
+      <div class="compare-table stagger d2">
+        <div class="cmp-row cmp-header" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim"></span><span>值传递</span><span>引用传递 ref</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">传递内容</span><span>值的副本</span><span>变量的引用</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">关键字</span><span>默认（无需关键字）</span><span class="mono">ref</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">方法内修改</span><span>不影响实参</span><span>直接影响实参</span></div>
+        <div class="cmp-row" style="grid-template-columns:160px 1fr 1fr"><span class="cmp-dim">适用场景</span><span>一般情况</span><span>需要回传多个结果</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 58 · ref / out ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">06 / 函数</span>
+          <h1 class="h-1">ref 与 out 参数</h1>
+        </div>
+        <p class="lead">让方法能修改外部变量或输出结果。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// ref：双向传递，实参须先初始化</span>
+<span class="kw">static void</span> <span class="fn">Swap</span>(<span class="kw">ref int</span> a, <span class="kw">ref int</span> b)
+{
+    <span class="kw">int</span> tmp = a; a = b; b = tmp;
+}
+
+<span class="kw">int</span> x = <span class="num">1</span>, y = <span class="num">2</span>;
+<span class="fn">Swap</span>(<span class="kw">ref</span> x, <span class="kw">ref</span> y);   <span class="cm">// x=2, y=1</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">ref</span> 双向传递；<span class="mono">out</span> 用于仅输出，方法内必须先赋值。</span></div>
+    </section>
+
+    <!-- ===================== 59 · 第三学时小结 ===================== -->
+    <section class="slide s-metrics">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">06 / 小结</span>
+          <h1 class="h-1">第三学时 · 核心回顾</h1>
+        </div>
+        <p class="lead">函数是组织与复用代码的基本单元。</p>
+      </div>
+      <div class="metrics-grid stagger d2">
+        <div class="metric-cell"><span class="metric-value"><b>void</b></span><span class="metric-label">无返回值</span><span class="metric-delta positive">仅执行操作</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>return</b></span><span class="metric-label">返回值</span><span class="metric-delta positive">交还结果</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>参数</b></span><span class="metric-label">传入数据</span><span class="metric-delta positive">形参 / 实参</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>重载</b></span><span class="metric-label">方法重载</span><span class="metric-delta positive">同名不同参</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>递归</b></span><span class="metric-label">自我调用</span><span class="metric-delta positive">须有终止条件</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>ref</b> out</span><span class="metric-label">引用参数</span><span class="metric-delta positive">回传结果</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 60 · 第四学时章节页 ===================== -->
+    <section class="slide s-think">
+      <div class="think-wrap stagger">
+        <div class="think-kicker">Lesson 04 · 第四学时</div>
+        <div class="think-q">从代码到对象<br><em>类 · 文本读写</em></div>
+        <p class="think-sub">理解面向对象思想，学会用类组织代码，并掌握文本文件的读写，让数据"落地"。</p>
+        <div class="think-note"><b>目标</b><span>能定义类与对象，并完成文本文件的读取、写入与异常处理</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 61 · 面向对象思想 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">07 / 类</span>
+        <h1 class="h-1">面向对象思想</h1>
+        <p class="lead">面向对象（OOP）把数据与操作数据的方法打包成"对象"，让程序更贴近现实世界、更易维护。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>封装</b></div><div class="lbl">隐藏内部细节</div></div>
+          <div><div class="k"><b>继承</b></div><div class="lbl">复用已有代码</div></div>
+          <div><div class="k"><b>多态</b></div><div class="lbl">同一接口多形态</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Encapsulation</div><div class="title">封装</div><div class="desc">把字段与操作组合进类，隐藏实现细节。</div></div><div class="badge">封装</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Inheritance</div><div class="title">继承</div><div class="desc">子类复用父类的属性与方法。</div></div><div class="badge">继承</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Polymorphism</div><div class="title">多态</div><div class="desc">同一方法在不同对象中表现不同。</div></div><div class="badge">多态</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 62 · 类与对象 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">07 / 类</span>
+        <h1 class="h-1">类与对象</h1>
+        <p class="lead">类是对象的"蓝图/模板"，对象是类的具体实例。用 new 关键字根据类创建出对象。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>class</b></div><div class="lbl">定义模板</div></div>
+          <div><div class="k"><b>new</b></div><div class="lbl">创建实例</div></div>
+          <div><div class="k"><b>.</b></div><div class="lbl">访问成员</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Class</div><div class="title">类 · 模板</div><div class="desc">定义字段与方法，描述一类事物的共性。</div></div><div class="badge">class</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Object</div><div class="title">对象 · 实例</div><div class="desc">用 new 创建的具体对象，拥有自己的数据。</div></div><div class="badge">object</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">new</div><div class="title">实例化</div><div class="desc">new 类名() 创建对象，返回该类的实例。</div></div><div class="badge">new</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 63 · 类定义 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">类的定义</h1>
+        </div>
+        <p class="lead">用 class 定义字段（数据）与方法（行为）。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Person.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="cm">// 字段（数据）</span>
+    <span class="kw">public string</span> name;
+    <span class="kw">public int</span> age;
+
+    <span class="cm">// 方法（行为）</span>
+    <span class="kw">public void</span> <span class="fn">SayHello</span>()
+    {
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"我是{name}，今年{age}岁。"</span>);
+    }
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">class</span> 关键字定义类；类内可包含字段（数据）和方法（行为）。</span></div>
+    </section>
+
+    <!-- ===================== 64 · 字段 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">字段 Field</h1>
+        </div>
+        <p class="lead">字段保存对象的状态数据。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Person.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="kw">public string</span> name;   <span class="cm">// 字段：保存姓名</span>
+    <span class="kw">public int</span> age;       <span class="cm">// 字段：保存年龄</span>
+
+    <span class="kw">public void</span> <span class="fn">Introduce</span>()
+    {
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"{name}, {age} 岁"</span>);
+    }
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>字段是类中的变量，每个对象都拥有自己的一份字段数据。</span></div>
+    </section>
+
+    <!-- ===================== 65 · 属性 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">属性 Property</h1>
+        </div>
+        <p class="lead">用 get / set 封装字段的读写。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Person.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="kw">private int</span> age;         <span class="cm">// 私有字段</span>
+
+    <span class="kw">public int</span> Age            <span class="cm">// 属性</span>
+    {
+        <span class="kw">get</span> { <span class="kw">return</span> age; }
+        <span class="kw">set</span> { age = <span class="kw">value</span>; }
+    }
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>属性通过 <span class="mono">get</span>/<span class="mono">set</span> 访问器封装字段，<span class="mono">value</span> 是传入的新值。</span></div>
+    </section>
+
+    <!-- ===================== 66 · 自动属性 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">自动属性</h1>
+        </div>
+        <p class="lead">简化写法，编译器自动生成后备字段。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Person.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="kw">public string</span> Name { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public int</span> Age { <span class="kw">get</span>; <span class="kw">set</span>; }
+}
+
+<span class="kw">var</span> p = <span class="kw">new</span> <span class="ty">Person</span>();
+p.Name = <span class="str">"小明"</span>;
+p.Age = <span class="num">18</span>;
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(p.Name);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>自动属性省略方法体，编译器自动生成后备字段，代码更简洁。</span></div>
+    </section>
+
+    <!-- ===================== 67 · 构造函数 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">构造函数</h1>
+        </div>
+        <p class="lead">与类同名，new 时自动执行的初始化方法。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Person.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="kw">public string</span> Name;
+    <span class="kw">public int</span> Age;
+
+    <span class="cm">// 构造函数：与类同名，无返回类型</span>
+    <span class="kw">public</span> <span class="ty">Person</span>(<span class="kw">string</span> name, <span class="kw">int</span> age)
+    {
+        Name = name;
+        Age = age;
+    }
+}
+
+<span class="kw">var</span> p = <span class="kw">new</span> <span class="ty">Person</span>(<span class="str">"小明"</span>, <span class="num">18</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>构造函数在 <span class="mono">new</span> 时自动执行，用于初始化对象的初始状态。</span></div>
+    </section>
+
+    <!-- ===================== 68 · 方法 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">类中的方法</h1>
+        </div>
+        <p class="lead">方法描述对象的行为，通过对象调用。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Calculator.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Calculator</span>
+{
+    <span class="kw">public int</span> <span class="fn">Add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b)
+    {
+        <span class="kw">return</span> a + b;
+    }
+}
+
+<span class="kw">var</span> c = <span class="kw">new</span> <span class="ty">Calculator</span>();
+<span class="kw">int</span> r = c.<span class="fn">Add</span>(<span class="num">3</span>, <span class="num">5</span>);   <span class="cm">// 8</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>类中的方法描述对象的行为，通过 <span class="mono">对象.方法()</span> 调用。</span></div>
+    </section>
+
+    <!-- ===================== 69 · 创建对象 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">创建对象并访问成员</h1>
+        </div>
+        <p class="lead">new 实例化，用 . 访问成员。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">Person</span>
+{
+    <span class="kw">public string</span> Name { <span class="kw">get</span>; <span class="kw">set</span>; }
+
+    <span class="kw">public void</span> <span class="fn">SayHello</span>()
+    {
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"你好，我是{Name}。"</span>);
+    }
+}
+
+<span class="kw">var</span> p = <span class="kw">new</span> <span class="ty">Person</span>();
+p.Name = <span class="str">"小明"</span>;      <span class="cm">// 访问属性</span>
+p.<span class="fn">SayHello</span>();      <span class="cm">// 调用方法</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>用 <span class="mono">new</span> 实例化；通过 <span class="mono">对象.成员</span> 访问字段、属性与方法。</span></div>
+    </section>
+
+    <!-- ===================== 70 · 访问修饰符 ===================== -->
+    <section class="slide s-dense-list">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">访问修饰符</h1>
+        </div>
+        <p class="lead">控制类成员可被哪些代码访问。</p>
+      </div>
+      <div class="dense-list-grid stagger d2">
+        <div class="dl-item"><span class="dl-idx">01</span><div><div class="dl-title mono">public</div><div class="dl-desc">完全公开，任何代码都可访问。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">02</span><div><div class="dl-title mono">private</div><div class="dl-desc">仅类内部可访问，是默认成员修饰。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">03</span><div><div class="dl-title mono">protected</div><div class="dl-desc">类内部与派生类可访问。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">04</span><div><div class="dl-title mono">internal</div><div class="dl-desc">同一程序集内可访问。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">05</span><div><div class="dl-title mono">protected internal</div><div class="dl-desc">派生类或同一程序集可访问。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">06</span><div><div class="dl-title mono">private protected</div><div class="dl-desc">派生类且同一程序集可访问。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 71 · 封装 ===================== -->
+    <section class="slide s-refine">
+      <div class="stagger">
+        <span class="kicker">07 / 类</span>
+        <h1 class="h-1">封装</h1>
+        <p class="lead">隐藏内部细节，只暴露必要的访问接口。</p>
+      </div>
+      <div class="refine-list stagger d2">
+        <div class="refine-item"><span class="idx"><b>01</b> · Hide</span><div><div class="h">封装概念</div><div class="d">把数据与操作打包，隐藏内部实现细节。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>02</b> · private</span><div><div class="h">私有字段</div><div class="d">用 private 声明字段，阻止外部直接修改。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>03</b> · Property</span><div><div class="h">公开属性</div><div class="d">通过 get/set 属性提供受控的访问。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>04</b> · Validate</span><div><div class="h">数据校验</div><div class="d">在 set 访问器中校验数据合法性。</div></div></div>
+        <div class="refine-item"><span class="idx"><b>05</b> · Stable</span><div><div class="h">隐藏实现</div><div class="d">修改内部实现不影响外部调用代码。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 72 · 静态成员 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">07 / 类</span>
+          <h1 class="h-1">静态成员 static</h1>
+        </div>
+        <p class="lead">属于类本身，无需实例化即可使用。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">MathUtil.cs</span></div>
+        <pre class="code-body"><span class="kw">class</span> <span class="ty">MathUtil</span>
+{
+    <span class="kw">public static double</span> PI = <span class="num">3.14159</span>;
+
+    <span class="kw">public static double</span> <span class="fn">Area</span>(<span class="kw">double</span> r)
+    {
+        <span class="kw">return</span> PI * r * r;
+    }
+}
+
+<span class="cm">// 静态成员用 类名.成员 访问，无需 new</span>
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="ty">MathUtil</span>.<span class="fn">Area</span>(<span class="num">2</span>));</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">static</span> 成员属于类本身，通过 <span class="mono">类名.成员</span> 访问，不需要实例化。</span></div>
+    </section>
+
+    <!-- ===================== 73 · 文件读写概述 ===================== -->
+    <section class="slide s-brand">
+      <div class="brand-left stagger">
+        <span class="kicker">08 / 文本读写</span>
+        <h1 class="h-1">文件读写概述</h1>
+        <p class="lead">文本读写让程序能持久化数据——把运行结果保存到文件，或从文件读取数据。</p>
+        <div class="brand-stats">
+          <div><div class="k"><b>File</b></div><div class="lbl">静态便捷方法</div></div>
+          <div><div class="k"><b>Reader</b></div><div class="lbl">逐行读取</div></div>
+          <div><div class="k"><b>Writer</b></div><div class="lbl">逐行写入</div></div>
+        </div>
+      </div>
+      <div class="brand-cards stagger d2">
+        <div class="brand-card"><div class="num">01</div><div><div class="tag">Read</div><div class="title">读取文件</div><div class="desc">File.ReadAllText / ReadAllLines 读入内容。</div></div><div class="badge">读</div></div>
+        <div class="brand-card"><div class="num">02</div><div><div class="tag">Write</div><div class="title">写入文件</div><div class="desc">File.WriteAllText / WriteAllLines 写出内容。</div></div><div class="badge">写</div></div>
+        <div class="brand-card"><div class="num">03</div><div><div class="tag">Append</div><div class="title">追加内容</div><div class="desc">File.AppendAllText 在末尾追加而不覆盖。</div></div><div class="badge">追加</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 74 · File 类 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">File 类入门</h1>
+        </div>
+        <p class="lead">File 的静态方法，一步完成读写。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">string</span> path = <span class="str">"data.txt"</span>;
+
+<span class="ty">File</span>.<span class="fn">WriteAllText</span>(path, <span class="str">"你好，文件！"</span>);  <span class="cm">// 写</span>
+<span class="kw">string</span> content = <span class="ty">File</span>.<span class="fn">ReadAllText</span>(path);  <span class="cm">// 读</span>
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(content);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>需要 <span class="mono">using System.IO</span>；<span class="mono">File</span> 的静态方法简单易用，适合小文件。</span></div>
+    </section>
+
+    <!-- ===================== 75 · 读取文件 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">读取文件</h1>
+        </div>
+        <p class="lead">读全文，或按行读为数组。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">string</span> path = <span class="str">"data.txt"</span>;
+
+<span class="cm">// 一次性读取全部文本</span>
+<span class="kw">string</span> all = <span class="ty">File</span>.<span class="fn">ReadAllText</span>(path);
+
+<span class="cm">// 按行读取为字符串数组</span>
+<span class="kw">string</span>[] lines = <span class="ty">File</span>.<span class="fn">ReadAllLines</span>(path);
+
+<span class="kw">foreach</span> (<span class="kw">string</span> line <span class="kw">in</span> lines)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(line);
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">ReadAllText</span> 读全文为字符串；<span class="mono">ReadAllLines</span> 按行读为数组。</span></div>
+    </section>
+
+    <!-- ===================== 76 · 写入文件 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">写入与追加</h1>
+        </div>
+        <p class="lead">覆盖写入 vs 末尾追加。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">string</span> path = <span class="str">"log.txt"</span>;
+
+<span class="cm">// 覆盖写入（清空原内容）</span>
+<span class="ty">File</span>.<span class="fn">WriteAllText</span>(path, <span class="str">"第一行\n"</span>);
+
+<span class="cm">// 追加写入（保留原内容）</span>
+<span class="ty">File</span>.<span class="fn">AppendAllText</span>(path, <span class="str">"第二行\n"</span>);
+
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="ty">File</span>.<span class="fn">ReadAllText</span>(path));</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">WriteAllText</span> 覆盖原文件；<span class="mono">AppendAllText</span> 在末尾追加不覆盖。</span></div>
+    </section>
+
+    <!-- ===================== 77 · StreamReader ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">StreamReader 逐行读</h1>
+        </div>
+        <p class="lead">适合大文件的逐行读取。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">using</span> (<span class="ty">StreamReader</span> reader = <span class="kw">new</span> <span class="ty">StreamReader</span>(<span class="str">"data.txt"</span>))
+{
+    <span class="kw">string</span> line;
+    <span class="kw">while</span> ((line = reader.<span class="fn">ReadLine</span>()) != <span class="kw">null</span>)
+    {
+        <span class="ty">Console</span>.<span class="fn">WriteLine</span>(line);
+    }
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">ReadLine</span> 逐行读取，读到末尾返回 <span class="mono">null</span>；配合 <span class="mono">using</span> 自动释放。</span></div>
+    </section>
+
+    <!-- ===================== 78 · StreamWriter ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">StreamWriter 逐行写</h1>
+        </div>
+        <p class="lead">逐行写入文本文件。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">using</span> (<span class="ty">StreamWriter</span> writer = <span class="kw">new</span> <span class="ty">StreamWriter</span>(<span class="str">"out.txt"</span>))
+{
+    writer.<span class="fn">WriteLine</span>(<span class="str">"第一行"</span>);
+    writer.<span class="fn">WriteLine</span>(<span class="str">"第二行"</span>);
+}
+<span class="cm">// 离开 using 块，文件自动关闭</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">WriteLine</span> 逐行写入；<span class="mono">using</span> 块结束自动关闭并刷新缓冲区。</span></div>
+    </section>
+
+    <!-- ===================== 79 · try-catch ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">异常处理 try-catch</h1>
+        </div>
+        <p class="lead">捕获文件读写错误，防止程序崩溃。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">try</span>
+{
+    <span class="kw">string</span> content = <span class="ty">File</span>.<span class="fn">ReadAllText</span>(<span class="str">"不存在.txt"</span>);
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(content);
+}
+<span class="kw">catch</span> (<span class="ty">FileNotFoundException</span>)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"文件不存在！"</span>);
+}
+<span class="kw">catch</span> (<span class="ty">Exception</span> ex)
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"出错："</span> + ex.<span class="fn">Message</span>);
+}</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>先捕获具体异常，再捕获通用 <span class="mono">Exception</span>；异常被捕获后程序继续运行。</span></div>
+    </section>
+
+    <!-- ===================== 80 · using 语句 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 文本读写</span>
+          <h1 class="h-1">using 语句</h1>
+        </div>
+        <p class="lead">确保文件流等资源被及时释放。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="cm">// using 语句确保资源自动释放</span>
+<span class="kw">using</span> (<span class="kw">var</span> reader = <span class="kw">new</span> <span class="ty">StreamReader</span>(<span class="str">"data.txt"</span>))
+{
+    <span class="ty">Console</span>.<span class="fn">WriteLine</span>(reader.<span class="fn">ReadToEnd</span>());
+}
+<span class="cm">// 离开 using 块，reader 自动 Dispose 关闭</span></pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span><span class="mono">using</span> 块结束自动调用 <span class="mono">Dispose</span> 释放资源，避免文件句柄泄漏。</span></div>
+    </section>
+
+    <!-- ===================== 81 · 综合实战 ===================== -->
+    <section class="slide s-code">
+      <div class="code-head stagger">
+        <div>
+          <span class="kicker">08 / 实战</span>
+          <h1 class="h-1">综合实战：成绩统计</h1>
+        </div>
+        <p class="lead">综合运用文件读写、循环、函数统计平均分。</p>
+      </div>
+      <div class="code-panel stagger d2">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fname">Program.cs</span></div>
+        <pre class="code-body"><span class="kw">using</span> <span class="ty">System.IO</span>;
+
+<span class="kw">string</span> path = <span class="str">"scores.txt"</span>;
+<span class="kw">string</span>[] data = { <span class="str">"小明 90"</span>, <span class="str">"小红 85"</span>, <span class="str">"小刚 72"</span> };
+<span class="ty">File</span>.<span class="fn">WriteAllLines</span>(path, data);      <span class="cm">// 写文件</span>
+
+<span class="kw">int</span> sum = <span class="num">0</span>, n = <span class="num">0</span>;
+<span class="kw">foreach</span> (<span class="kw">string</span> line <span class="kw">in</span> <span class="ty">File</span>.<span class="fn">ReadAllLines</span>(path))
+{
+    sum += <span class="kw">int</span>.<span class="fn">Parse</span>(line.<span class="fn">Split</span>(<span class="str">' '</span>)[<span class="num">1</span>]);
+    n++;
+}
+<span class="ty">Console</span>.<span class="fn">WriteLine</span>(<span class="str">$"平均分：{sum / (double)n}"</span>);</pre>
+      </div>
+      <div class="code-tip stagger d3"><b>要点</b><span>先用 <span class="mono">WriteAllLines</span> 写出，再用 <span class="mono">ReadAllLines</span> 读回并统计，完成完整闭环。</span></div>
+    </section>
+
+    <!-- ===================== 82 · 第四学时小结 ===================== -->
+    <section class="slide s-metrics">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">08 / 小结</span>
+          <h1 class="h-1">第四学时 · 核心回顾</h1>
+        </div>
+        <p class="lead">类组织代码，文件读写让数据持久化。</p>
+      </div>
+      <div class="metrics-grid stagger d2">
+        <div class="metric-cell"><span class="metric-value"><b>class</b></span><span class="metric-label">定义类</span><span class="metric-delta positive">数据 + 行为</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>new</b></span><span class="metric-label">创建对象</span><span class="metric-delta positive">实例化</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>属性</b></span><span class="metric-label">get / set</span><span class="metric-delta positive">封装访问</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>File</b></span><span class="metric-label">静态读写</span><span class="metric-delta positive">便捷方法</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>Stream</b></span><span class="metric-label">逐行读写</span><span class="metric-delta positive">适合大文件</span></div>
+        <div class="metric-cell"><span class="metric-value"><b>try</b> catch</span><span class="metric-label">异常处理</span><span class="metric-delta positive">防止崩溃</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== 83 · 课程总结 ===================== -->
+    <section class="slide s-dense-list">
+      <div class="dense-head stagger">
+        <div>
+          <span class="kicker">Recap · 总结</span>
+          <h1 class="h-1">课程总结 · 七大基石</h1>
+        </div>
+        <p class="lead">回顾四学时，你已掌握 C# 入门的完整知识地图。</p>
+      </div>
+      <div class="dense-list-grid stagger d2">
+        <div class="dl-item"><span class="dl-idx">01</span><div><div class="dl-title">变量与类型</div><div class="dl-desc">声明变量、理解 int/string/bool 等类型。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">02</span><div><div class="dl-title">字符串</div><div class="dl-desc">拼接、插值、常用方法与转义。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">03</span><div><div class="dl-title">条件语句</div><div class="dl-desc">if / else if / switch / 三元判断。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">04</span><div><div class="dl-title">循环</div><div class="dl-desc">for / while / do-while / foreach 重复执行。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">05</span><div><div class="dl-title">函数</div><div class="dl-desc">参数、返回值、重载与递归复用逻辑。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">06</span><div><div class="dl-title">类与对象</div><div class="dl-desc">字段、属性、方法、构造函数与封装。</div></div></div>
+        <div class="dl-item"><span class="dl-idx">07</span><div><div class="dl-title">文本读写</div><div class="dl-desc">File / Stream 读取写入与异常处理。</div></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== 84 · 结束页 ===================== -->
+    <section class="slide s-close">
+      <div class="close-left">
+        <div class="chrome-min"><span>84</span><span>Closing</span></div>
+        <div class="manifesto stagger">
+          <div class="meta">Now, Code It</div>
+          <h2>编程无捷径<br>唯手熟尔</h2>
+          <div class="sub">从变量到文件读写，你已经掌握了 C# 的完整地基。</div>
+        </div>
+        <div class="sig"><span>C# 编程技能入门</span><span>2026</span></div>
+      </div>
+      <div class="close-right">
+        <div class="chrome-min"><span>Takeaways</span><span>03 Points</span></div>
+        <div class="takeaways stagger">
+          <div class="take-item"><div class="num">01</div><div><h3>打牢基础</h3><p>变量、类型、字符串是万物之基。</p></div></div>
+          <div class="take-item"><div class="num">02</div><div><h3>掌控流程</h3><p>条件与循环让程序拥有判断与重复能力。</p></div></div>
+          <div class="take-item"><div class="num">03</div><div><h3>面向对象</h3><p>函数与类让代码可复用、可维护。</p></div></div>
+        </div>
+        <div class="foot">→ 动手写代码，继续你的 C# 之旅</div>
+      </div>
+    </section>
+
+    <div class="nav-dots" id="navDots"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var canvas=document.getElementById('canvas');
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total=slides.length;
+  var cur=0;
+  var dotsBox=document.getElementById('navDots');
+  var pageCur=document.getElementById('pageCur');
+  var pageTot=document.getElementById('pageTot');
+  pageTot.textContent=String(total).padStart(2,'0');
+
+  function fit(){
+    var s=Math.min(window.innerWidth/1280,window.innerHeight/720);
+    canvas.style.transform='translate(-50%,-50%) scale('+s+')';
+  }
+  function buildDots(){
+    for(var i=0;i<total;i++){
+      var d=document.createElement('span');
+      d.className='dot'+(i===0?' active':'');
+      d.setAttribute('data-i',i);
+      (function(k){d.addEventListener('click',function(){go(k);});})(i);
+      dotsBox.appendChild(d);
+    }
+  }
+  function go(i){
+    cur=(i+total)%total;
+    slides.forEach(function(el,k){el.classList.toggle('active',k===cur);});
+    var dots=dotsBox.querySelectorAll('.dot');
+    dots.forEach(function(d,k){d.classList.toggle('active',k===cur);});
+    pageCur.textContent=String(cur+1).padStart(2,'0');
+  }
+  function next(){go(cur+1);}
+  function prev(){go(cur-1);}
+
+  window.addEventListener('resize',fit);
+  window.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0);}
+    else if(e.key==='End'){go(total-1);}
+  });
+
+  var wheelLock=false;
+  window.addEventListener('wheel',function(e){
+    if(wheelLock)return;
+    wheelLock=true;
+    if(e.deltaY>0)next();else if(e.deltaY<0)prev();
+    setTimeout(function(){wheelLock=false;},600);
+  },{passive:true});
+
+  var tx=0,ty=0;
+  window.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  window.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-tx;
+    var dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}
+    else if(Math.abs(dy)>50){dy<0?next():prev();}
+  },{passive:true});
+
+  buildDots();
+  fit();
+  go(0);
+})();
+</script>
+</body>
+</html>
