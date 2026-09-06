@@ -2,11 +2,17 @@ FROM jupyter/base-notebook:latest
 
 USER root
 
-# 设置 .NET 相关环境变量
+# 基础镜像不带 curl，先安装
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# 设置 .NET 环境变量
 ENV DOTNET_ROOT=/home/jovyan/.dotnet \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     DOTNET_NOLOGO=1 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    DOTNET_ROLL_FORWARD=LatestMajor \
     PATH=/home/jovyan/.dotnet:/home/jovyan/.dotnet/tools:$PATH
 
 USER jovyan
